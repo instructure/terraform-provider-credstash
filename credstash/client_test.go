@@ -17,6 +17,7 @@ func TestClient_GetSecret(t *testing.T) {
 	password := "test secret"
 	item, key := createItem(t, password)
 	decrypt := fakeDecrypter{plaintext: key}
+	keyId := "kms key id"
 	db := fakeDynamoDB{
 		item: item,
 		testQueryInput: func(in *dynamodb.QueryInput) {
@@ -33,6 +34,7 @@ func TestClient_GetSecret(t *testing.T) {
 		decrypter: decrypt,
 		dynamoDB:  db,
 		table:     "test_table",
+		keyId:     keyId,
 	}
 
 	result, err := c.GetSecret("test_key", "", "", nil)

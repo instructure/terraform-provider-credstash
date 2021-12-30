@@ -8,14 +8,16 @@ import (
 
 type Client struct {
 	table string
+	keyId string
 
 	dynamoDB  dynamoDB
 	decrypter decrypter
 }
 
-func New(table string, sess *session.Session) *Client {
+func New(table, keyId string, sess *session.Session) *Client {
 	return &Client{
 		table:     table,
+		keyId:     keyId,
 		decrypter: kms.New(sess),
 		dynamoDB:  dynamodb.New(sess),
 	}
@@ -30,7 +32,7 @@ func (c *Client) GetSecret(name, table, version string, ctx map[string]string) (
 		return "", err
 	}
 
-	dataKey, hmacKey, err := decryptKey(c.decrypter, material.Key, ctx)
+	dataKey, hmacKey, err := decryptKey(c.decrypter, material.Key, ctx, c.keyId)
 	if err != nil {
 		return "", err
 	}

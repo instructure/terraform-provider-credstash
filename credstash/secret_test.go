@@ -150,6 +150,7 @@ func TestDecryptKey(t *testing.T) {
 	hmacKey := bytes.Repeat([]byte("a"), 32)
 	dataKey := bytes.Repeat([]byte("b"), 32)
 	ciphertext := []byte("test blob")
+	keyId := "kms key id"
 	plainKey := append(dataKey, hmacKey...)
 
 	d := fakeDecrypter{
@@ -158,10 +159,13 @@ func TestDecryptKey(t *testing.T) {
 			if !bytes.Equal(in.CiphertextBlob, ciphertext) {
 				t.Error("unexpected ciphertext blob")
 			}
+			if aws.StringValue(in.KeyId) != keyId {
+				t.Error("unexpected key id")
+			}
 		},
 	}
 
-	actualDataKey, actualHMACKey, err := decryptKey(d, ciphertext, nil)
+	actualDataKey, actualHMACKey, err := decryptKey(d, ciphertext, nil, keyId)
 	assertNoError(t, err)
 
 	if !bytes.Equal(hmacKey, actualHMACKey) {

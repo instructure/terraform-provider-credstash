@@ -76,10 +76,14 @@ func getDigestFunc(digest string) (func() hash.Hash, error) {
 	return nil, fmt.Errorf("digest %s is not supported", digest)
 }
 
-func decryptKey(svc decrypter, ciphertext []byte, ctx map[string]string) (dataKey, hmacKey []byte, err error) {
+func decryptKey(svc decrypter, ciphertext []byte, ctx map[string]string, keyId string) (dataKey, hmacKey []byte, err error) {
 	params := &kms.DecryptInput{
 		CiphertextBlob:    ciphertext,
 		EncryptionContext: aws.StringMap(ctx),
+	}
+
+	if len(keyId) != 0 {
+		params.KeyId = aws.String(keyId)
 	}
 
 	out, err := svc.Decrypt(params)

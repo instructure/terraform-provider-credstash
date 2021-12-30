@@ -8,7 +8,7 @@ import (
 	awsbase "github.com/hashicorp/aws-sdk-go-base"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/sspinc/terraform-provider-credstash/credstash"
+	"github.com/joshuamorris3/terraform-provider-credstash/credstash"
 )
 
 var _ terraform.ResourceProvider = provider()
@@ -44,6 +44,12 @@ func provider() terraform.ResourceProvider {
 				Description: "The profile that should be used to connect to AWS",
 			},
 			"assume_role": assumeRoleSchema(),
+			"key_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "the KMS key ID, ARN, alias or alias ARN used to encrypt/decrypt the secret",
+				Sensitive:   true,
+			},
 		},
 		ConfigureFunc: providerConfig,
 	}
@@ -53,6 +59,7 @@ func providerConfig(d *schema.ResourceData) (interface{}, error) {
 	region := d.Get("region").(string)
 	table := d.Get("table").(string)
 	profile := d.Get("profile").(string)
+	keyId := d.Get("key_id").(string)
 
 	var sess *session.Session
 	var err error
@@ -82,7 +89,7 @@ func providerConfig(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	log.Printf("[DEBUG] configured credstash for table %s", table)
-	return credstash.New(table, sess), nil
+	return credstash.New(table, keyId, sess), nil
 }
 
 func assumeRoleSchema() *schema.Schema {
