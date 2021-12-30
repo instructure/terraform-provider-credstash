@@ -83,6 +83,23 @@ provider "credstash" {
 }
 ```
 
+## Custom KMS key
+
+If you are using a custom KMS key to encrypt your secrets, you will need to provide the key ID, ARN, alias, or alias ARN as the value for `key_id`.
+See the `KeyId` decription in the AWS SDK documentation for [EncryptInput](https://docs.aws.amazon.com/sdk-for-go/api/service/kms/#EncryptInput) or [DecryptInput](https://docs.aws.amazon.com/sdk-for-go/api/service/kms/#DecryptInput)
+
+```hcl
+provider "credstash" {
+    table   = "credential-store"
+    region  = "us-east-1"
+    assume_role {
+        role_arn         = "arn:aws:iam::<acccount>:<role name>
+        duration_seconds = 600
+    }
+    key_id = "1234abcd-12ab-34cd-56ef-1234567890ab"
+}
+```
+
 ## Development
 
 For dependency management Go modules are used thus you will need go 1.11+
